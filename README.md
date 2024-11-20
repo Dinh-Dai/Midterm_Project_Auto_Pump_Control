@@ -14,5 +14,25 @@ Giao diện dashboard: Sử dụng Node-RED để hiển thị giá trị độ 
 3. Sơ đồ khối dự kiến
 ![system_diagram](https://github.com/user-attachments/assets/63946e52-bd84-4c39-87c8-c3561243a983)
 
+4. Đặt bài toán
+Vấn đề thực tế: Nông dân thường gặp khó khăn trong việc đảm bảo đất luôn đủ ẩm để cây trồng phát triển, đặc biệt trong mùa khô. Việc tưới thủ công không chỉ tốn nhiều thời gian mà còn dễ gây lãng phí nước nếu không biết chính xác tình trạng độ ẩm của đất.
+
+Giải pháp đề xuất:
+Theo dõi độ ẩm đất thời gian thực.
+Tự động kích hoạt hoặc tắt máy bơm khi cần thiết.
+Giám sát và điều khiển từ xa qua Internet.
+
+Lợi ích:
+Giảm công sức lao động.
+Tối ưu hóa việc sử dụng nước.
+Nâng cao hiệu quả quản lý đất canh tác.
+
+5. Tiến độ thực hiện
+Tuần này: Hoàn thành dàn ý và thiết kế sơ đồ khối, tạo repo GitHub public để trình bày ý tưởng.
+
+Các tuần tiếp theo:
+Xây dựng mạch điện và lập trình ESP32.
+Thiết kế giao diện Node-RED.
+Kiểm tra và tối ưu hệ thống.
 
 
