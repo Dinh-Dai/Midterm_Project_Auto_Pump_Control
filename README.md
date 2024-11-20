@@ -12,4 +12,7 @@ Kết nối MQTT: Dữ liệu độ ẩm được gửi đến một broker MQTT
 Giao diện dashboard: Sử dụng Node-RED để hiển thị giá trị độ ẩm, trạng thái máy bơm và cho phép điều khiển từ xa.
 
 3. Sơ đồ khối dự kiến
+![system_diagram](https://github.com/user-attachments/assets/63946e52-bd84-4c39-87c8-c3561243a983)
+
+
 
