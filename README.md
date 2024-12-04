@@ -46,3 +46,8 @@ Kiểm tra và tối ưu hệ thống.
 
 Báo cáo môn cấu trúc dữ liệu 
 
+# Video Demo: Automatic Watering
+https://github.com/user-attachments/assets/7c6da52c-57bc-4cbf-86b1-595a82b452cd
+
+# Video Demo: Control Pump
+https://github.com/user-attachments/assets/486ec3d1-0670-410c-a375-10d16074d479
