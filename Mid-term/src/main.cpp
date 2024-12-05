@@ -12,9 +12,8 @@ const char *wifiSSID = WiFiSecrets::ssid;
 const char *wifiPassword = WiFiSecrets::pass;
 
 // MQTT broker settings
-const char *mqttRelayTopic = "esp32/relay";
-const char *mqttSoilTopic = "esp32/moisture";
-const char *mqttModeTopic = "esp32/mode";
+const char *mqttRelayTopic = "esp32/relay_manual";  // Topic for manual relay control
+const char *mqttSoilTopic = "esp32/moisture";       // Topic for soil moisture data
 const char *mqttLWTTopic = "esp32/lwt";
 const char *mqttLWTMessage = "ESP32 unexpectedly disconnected.";
 const int mqttKeepAlive = 15;
@@ -22,22 +21,15 @@ const int mqttSocketTimeout = 5;
 
 // Pin definitions
 const int pinSoilSensor = 34;
-const int pinRelay = 26;
+const int pinRelay1 = 26; // Relay controlled automatically by soil moisture
+const int pinRelay2 = 27; // Relay controlled manually via MQTT
 
 // Soil moisture configuration
-const float soilThreshold = 80.0;
-const int soilMaxValue = 4095;
+const float soilThreshold = 80.0; // Soil moisture threshold (%)
+const int soilMaxValue = 4095;    // Max ADC value for the soil sensor
 
 // Ticker interval for publishing soil data
-const int tickerInterval = 5000; // 5 seconds
-
-// Control modes
-enum ControlMode
-{
-    AUTO,
-    MANUAL
-};
-ControlMode controlMode = AUTO; // Default to AUTO mode
+const int tickerInterval = 1000; // Interval in milliseconds
 
 // MQTT client setup
 WiFiClientSecure secureClient;
@@ -48,9 +40,8 @@ Ticker soilDataTicker;
 void onMQTTMessage(char *topic, byte *payload, unsigned int length);
 void publishSoilData();
 void reconnectMQTT();
-void setupRelay();
-void controlRelay(float soilMoisture);
-void publishSystemState();
+void setupRelays();
+void controlRelay1(float soilMoisture);
 
 void setup()
 {
@@ -59,7 +50,7 @@ void setup()
 
     // Pin setup
     pinMode(pinSoilSensor, INPUT);
-    setupRelay();
+    setupRelays();
 
     // Connect to WiFi
     setup_wifi(wifiSSID, wifiPassword);
@@ -83,11 +74,13 @@ void loop()
     mqttClient.loop();
 }
 
-// Function to set relay to default state
-void setupRelay()
+// Function to initialize relays to default state
+void setupRelays()
 {
-    pinMode(pinRelay, OUTPUT);
-    digitalWrite(pinRelay, HIGH); // Relay is OFF by default
+    pinMode(pinRelay1, OUTPUT);
+    pinMode(pinRelay2, OUTPUT);
+    digitalWrite(pinRelay1, HIGH); // Relay 1 (soil control) OFF by default
+    digitalWrite(pinRelay2, HIGH); // Relay 2 (manual control) OFF by default
 }
 
 // Callback function for MQTT messages
@@ -102,34 +95,19 @@ void onMQTTMessage(char *topic, byte *payload, unsigned int length)
     }
     Serial.printf("Payload: %s\n", message.c_str());
 
-    // Handle mode control messages
-    if (String(topic) == mqttModeTopic)
-    {
-        if (message == "MANUAL")
-        {
-            controlMode = MANUAL;
-            Serial.println("Switched to MANUAL mode");
-        }
-        else if (message == "AUTO")
-        {
-            controlMode = AUTO;
-            Serial.println("Switched to AUTO mode");
-        }
-        publishSystemState();
-    }
-
-    // Handle relay control messages in MANUAL mode
-    if (controlMode == MANUAL && String(topic) == mqttRelayTopic)
+    // Handle manual relay control messages
+    if (String(topic) == mqttRelayTopic)
     {
         if (message == "ON")
         {
-            digitalWrite(pinRelay, LOW); // Turn relay ON
+            digitalWrite(pinRelay2, LOW); // Turn manual relay ON
+            Serial.println("Manual Relay ON");
         }
         else if (message == "OFF")
         {
-            digitalWrite(pinRelay, HIGH); // Turn relay OFF
+            digitalWrite(pinRelay2, HIGH); // Turn manual relay OFF
+            Serial.println("Manual Relay OFF");
         }
-        publishSystemState();
     }
 }
 
@@ -139,31 +117,28 @@ void publishSoilData()
     int rawValue = analogRead(pinSoilSensor);
     float soilMoisture = (rawValue / float(soilMaxValue)) * 100;
 
-    // Relay control logic in AUTO mode
-    if (controlMode == AUTO)
-    {
-        controlRelay(soilMoisture);
-    }
+    // Control relay 1 based on soil moisture
+    controlRelay1(soilMoisture);
 
     // Publish soil moisture data to MQTT
-    String moistureString = String(100 - soilMoisture, 2); // Invert to represent dryness
+    String moistureString = String(100 - soilMoisture, 2); // Reverse to get "dryness"
     mqttClient.publish(mqttSoilTopic, moistureString.c_str(), false);
 
     Serial.printf("Soil Moisture: %.2f%% (Published)\n", soilMoisture);
 }
 
-// Function to control relay based on soil moisture
-void controlRelay(float soilMoisture)
+// Function to control relay 1 based on soil moisture
+void controlRelay1(float soilMoisture)
 {
     if (soilMoisture > soilThreshold)
     {
-        digitalWrite(pinRelay, LOW);
-        Serial.println("Relay ON (Soil Moisture > Threshold)");
+        digitalWrite(pinRelay1, LOW); // Turn relay 1 ON
+        Serial.println("Relay 1 ON (Soil Moisture > Threshold)");
     }
     else
     {
-        digitalWrite(pinRelay, HIGH);
-        Serial.println("Relay OFF (Soil Moisture <= Threshold)");
+        digitalWrite(pinRelay1, HIGH); // Turn relay 1 OFF
+        Serial.println("Relay 1 OFF (Soil Moisture <= Threshold)");
     }
 }
 
@@ -177,9 +152,7 @@ void reconnectMQTT()
         if (mqttClient.connect(clientID.c_str(), MQTT::username, MQTT::password, mqttLWTTopic, 0, false, mqttLWTMessage))
         {
             Serial.printf("Connected to MQTT as %s\n", clientID.c_str());
-            mqttClient.subscribe(mqttRelayTopic);
-            mqttClient.subscribe(mqttModeTopic);
-            publishSystemState();
+            mqttClient.subscribe(mqttRelayTopic); // Subscribe to manual relay control topic
         }
         else
         {
@@ -187,16 +160,4 @@ void reconnectMQTT()
             delay(1000);
         }
     }
-}
-
-// Function to publish system state (mode and relay state)
-void publishSystemState()
-{
-    String modeString = (controlMode == AUTO) ? "AUTO" : "MANUAL";
-    mqttClient.publish(mqttModeTopic, modeString.c_str(), false);
-
-    String relayState = digitalRead(pinRelay) == LOW ? "ON" : "OFF";
-    mqttClient.publish("esp32/relayState", relayState.c_str(), false);
-
-    Serial.printf("System State: Mode=%s, Relay=%s\n", modeString.c_str(), relayState.c_str());
 }
