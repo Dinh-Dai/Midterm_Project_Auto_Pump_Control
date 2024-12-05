@@ -8,7 +8,8 @@ Việc giám sát và điều khiển độ ẩm đất đóng vai trò quan tr�
 * Xây dựng một hệ thống tự động giám sát và điều khiển độ ẩm đất sử dụng vi điều khiển ESP32.
 * Thu thập và gửi dữ liệu độ ẩm đất qua giao thức MQTT để người dùng có thể theo dõi từ xa.
 * Điều khiển module relay để bật/tắt hệ thống tưới tiêu tự động dựa trên ngưỡng độ ẩm được cấu hình trước.
-* Bật tắt relay thông qua dashboard từ xa.
+* Bật tắt relay thông qua dashboard
+* .
 
 # Linh kiện sử dụng
 * ESP32
