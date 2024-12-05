@@ -21,8 +21,8 @@ Việc giám sát và điều khiển độ ẩm đất đóng vai trò quan tr�
 * Giao thức MQTT để trao đổi dữ liệu qua broker online.
 * Node-RED, Dashboard để theo dõi từ xa và điều khiển động cơ mini.
 
-# Sơ đồ khối của esp32
-![sơ đồ khối](https://github.com/user-attachments/assets/35ec5f65-22e4-4ea5-8484-bb2fe186a1cb)
+# Sơ đồ khối của hệ thống
+![sơ đồ khối (2)](https://github.com/user-attachments/assets/be43e172-1f26-4196-b851-d8e02e7523f3)
 
 # NodeRed Flow
 ![NodeRed_Flow](https://github.com/user-attachments/assets/ae5a0940-2421-46ee-bc9a-ed498afd365f)
