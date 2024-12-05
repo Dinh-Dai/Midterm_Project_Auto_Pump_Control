@@ -15,7 +15,7 @@ Kết nối MQTT: Dữ liệu độ ẩm được gửi đến một broker MQTT
 Giao diện dashboard: Sử dụng Node-RED để hiển thị giá trị độ ẩm, trạng thái máy bơm và cho phép điều khiển từ xa.
 
 # Sơ đồ khối của esp32
-![sơ đồ khối](https://github.com/user-attachments/assets/95a43555-3674-44ba-accd-d22fbbe0dbeb)
+![sơ đồ khối](https://github.com/user-attachments/assets/35ec5f65-22e4-4ea5-8484-bb2fe186a1cb)
 
 # Đặt bài toán
 Vấn đề thực tế: Nông dân thường gặp khó khăn trong việc đảm bảo đất luôn đủ ẩm để cây trồng phát triển, đặc biệt trong mùa khô. Việc tưới thủ công không chỉ tốn nhiều thời gian mà còn dễ gây lãng phí nước nếu không biết chính xác tình trạng độ ẩm của đất.
